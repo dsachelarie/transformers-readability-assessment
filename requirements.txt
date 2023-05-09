@@ -1,0 +1,6 @@
+tensorflow >= 2.0
+scikit-learn
+transformers
+datasets
+evaluate
+torch >= 1.1.0

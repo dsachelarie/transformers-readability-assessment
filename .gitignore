@@ -1,0 +1,12 @@
+# environment files
+.idea/
+venv/
+
+# corpora
+WeeBit-TextOnly/
+
+# pycache
+*.pyc
+
+# ReadNet
+readnet.py
