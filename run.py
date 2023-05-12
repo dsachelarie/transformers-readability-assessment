@@ -1,14 +1,16 @@
+from datasets import Dataset
+
 from transformer_model import TransformerModel
 from utils.corpus import Corpus
 from utils.model import Model
 from utils import utils
 
 
-WEEBIT_PATH = "WeeBit-TextOnly"
+WEEBIT_PATH = "WeeBitBalanced"
 NEWSELA_PATH = ""
 
 
-def run_on_corpus(corpus: Corpus, models: [Model], compute_rmse=False, compute_accuracy=True, compute_per_label=False):
+def run_on_corpus(corpus: Corpus, models: [Model], compute_per_label=False):
     results = []
 
     if corpus == Corpus.WEEBIT:
@@ -17,6 +19,9 @@ def run_on_corpus(corpus: Corpus, models: [Model], compute_rmse=False, compute_a
         data = utils.read_newsela(NEWSELA_PATH)
     else:
         raise Exception("No such corpus")
+
+    dataset = Dataset.from_list(data)
+    dataset = dataset.train_test_split(train_size=0.8, shuffle=True)
 
     for model in models:
         if model == Model.READNET:
@@ -33,11 +38,10 @@ def run_on_corpus(corpus: Corpus, models: [Model], compute_rmse=False, compute_a
         else:
             raise Exception("No such model")
 
-        tokenized_data = transformer_model.tokenize(data)
-        train_data, test_data = transformer_model.split_train_test(tokenized_data)
-        results.append({"model": model, "results": transformer_model.run(train_data, test_data, compute_rmse, compute_accuracy, compute_per_label)})
+        dataset = transformer_model.tokenize(dataset)
+        results.append({"model": model, "results": transformer_model.run(dataset["train"], dataset["test"], compute_per_label)})
 
     return results
 
 
-print(run_on_corpus(corpus=Corpus.WEEBIT, models=[Model.BART]))
+print(run_on_corpus(corpus=Corpus.WEEBIT, models=[Model.ROBERTA]))

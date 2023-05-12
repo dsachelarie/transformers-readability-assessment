@@ -3,10 +3,13 @@
 venv/
 
 # corpora
-WeeBit-TextOnly/
+WeeBitBalanced/
 
 # pycache
 *.pyc
 
 # ReadNet
 readnet.py
+
+# Output directory
+test_trainer
