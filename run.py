@@ -35,9 +35,9 @@ def run_on_corpus(corpus: Corpus, models: [Model], compute_rmse=False, compute_a
 
         tokenized_data = transformer_model.tokenize(data)
         train_data, test_data = transformer_model.split_train_test(tokenized_data)
-        results += {"model": model, "results": transformer_model.run(train_data, test_data, compute_rmse, compute_accuracy, compute_per_label)}
+        results.append({"model": model, "results": transformer_model.run(train_data, test_data, compute_rmse, compute_accuracy, compute_per_label)})
 
     return results
 
 
-print(run_on_corpus(corpus=Corpus.WEEBIT, models=[Model.BERT]))
+print(run_on_corpus(corpus=Corpus.WEEBIT, models=[Model.BART]))

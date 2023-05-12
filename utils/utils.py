@@ -17,7 +17,7 @@ def read_weebit(path: str):
         for line in lines:
             text += line
 
-        data.append({"text": text, "label": "7-8"})
+        data.append({"text": text, "label": 0})
 
     # Get texts for 8-9 year olds
     for file_name in os.listdir(path + "\\WeeBit-TextOnly\\WRLevel3"):
@@ -32,7 +32,7 @@ def read_weebit(path: str):
         for line in lines:
             text += line
 
-        data.append({"text": text, "label": "8-9"})
+        data.append({"text": text, "label": 1})
 
     # Get texts for 9-10 year olds
     for file_name in os.listdir(path + "\\WeeBit-TextOnly\\WRLevel4"):
@@ -47,7 +47,7 @@ def read_weebit(path: str):
         for line in lines:
             text += line
 
-        data.append({"text": text, "label": "9-10"})
+        data.append({"text": text, "label": 2})
 
     # Get texts for 11-14 year olds
     for file_name in os.listdir(path + "\\WeeBit-TextOnly\\BitKS3"):
@@ -69,7 +69,7 @@ def read_weebit(path: str):
         for line in lines:
             text += line
 
-        data.append({"text": text, "label": "11-14"})
+        data.append({"text": text, "label": 3})
 
     # Get texts for 15-16 year olds
     for file_name in os.listdir(path + "\\WeeBit-TextOnly\\BitGCSE"):
@@ -90,14 +90,10 @@ def read_weebit(path: str):
         for line in lines:
             text += line
 
-        data.append({"text": text, "label": "15-16"})
+        data.append({"text": text, "label": 4})
 
     return data
 
 
 def read_newsela(path: str):
-    pass
-
-
-def split_train_test(data):
     pass
