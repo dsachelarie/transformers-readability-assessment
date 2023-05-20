@@ -13,3 +13,6 @@ readnet.py
 
 # Output directory
 test_trainer
+
+# csv files
+*.csv

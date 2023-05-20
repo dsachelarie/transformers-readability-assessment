@@ -1,5 +1,8 @@
 import os
 
+from datasets import Dataset, DatasetDict
+from utils.corpus import Corpus
+
 
 def read_weebit(path: str):
     data = []
@@ -97,3 +100,24 @@ def read_weebit(path: str):
 
 def read_newsela(path: str):
     pass
+
+
+def get_dataset(corpus: Corpus, path: str, reload: False):
+    # Process WeeBit dataset if no cached option is found or the data should be reloaded
+    if not os.path.isfile("weebit-cache-train.csv") or not os.path.isfile("weebit-cache-test.csv") or reload:
+        if corpus == Corpus.WEEBIT:
+            data = read_weebit(path)
+        else:
+            data = read_newsela(path)
+
+        dataset = Dataset.from_list(data)
+        dataset = dataset.train_test_split(train_size=0.8, shuffle=True)
+        dataset["train"].to_csv("weebit-cache-train.csv")
+        dataset["test"].to_csv("weebit-cache-test.csv")
+
+        return dataset
+
+    train_dataset = Dataset.from_csv("weebit-cache-train.csv")
+    test_dataset = Dataset.from_csv("weebit-cache-test.csv")
+
+    return DatasetDict({"train": train_dataset, "test": test_dataset})

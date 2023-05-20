@@ -1,13 +1,14 @@
-from transformers import AutoTokenizer, Trainer, TrainingArguments, AutoModelForSequenceClassification, GPT2Config, GPT2ForSequenceClassification
+from transformers import AutoTokenizer, Trainer, TrainingArguments, AutoModelForSequenceClassification
 from datasets import Dataset
 import evaluate
 import numpy as np
 
 
 class TransformerModel:
-    def __init__(self, model_name: str):
+    def __init__(self, model_name: str, num_labels: int):
         self.model_name = model_name
-        self.model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=5)
+        self.model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=num_labels)
+        self.num_labels = num_labels
 
     def tokenize(self, dataset: Dataset):
         tokenizer = AutoTokenizer.from_pretrained(self.model_name)
@@ -20,9 +21,7 @@ class TransformerModel:
         return dataset.map(
             lambda examples: tokenizer(examples["text"], padding="max_length", truncation=True), batched=True)
 
-    def run(self, train_data: Dataset, test_data: Dataset, compute_per_label: bool):
-        # training_args = TrainingArguments(output_dir="test_trainer")
-
+    def run(self, train_data: Dataset, test_data: Dataset):
         def compute_metrics(eval_pred):
             metric1 = evaluate.load("accuracy")
             metric2 = evaluate.load("mse")
@@ -45,8 +44,14 @@ class TransformerModel:
             compute_metrics=compute_metrics
         )
         trainer.train()
+        model_results = [{"overall_results": trainer.evaluate()}]
 
-        return trainer.evaluate()
+        for label in range(self.num_labels):
+            data_division = test_data.filter(lambda element: element["label"] == label)
+
+            model_results.append({"label": label, "per_label_results": trainer.evaluate(eval_dataset=data_division)})
+
+        return model_results
 
         # selected_data = test_data.select(range(10))
         # output = trainer.predict(selected_data)
