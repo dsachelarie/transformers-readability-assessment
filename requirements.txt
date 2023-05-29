@@ -4,3 +4,6 @@ transformers
 datasets
 evaluate
 torch >= 1.1.0
+textstat
+nltk
+fastai
