@@ -4,6 +4,8 @@ venv/
 
 # corpora
 WeeBitBalanced/
+WeeBit/
+WeeBitBalancedCache/
 
 # pycache
 *.pyc

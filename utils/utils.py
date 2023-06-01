@@ -1,11 +1,29 @@
 import os
+import random
 
 from datasets import Dataset, DatasetDict
 from utils.corpus import Corpus
 
 
+def get_text(f):
+    lines = f.readlines()
+    text = ""
+
+    # Remove CSS warning if present
+    if "This page is best viewed in an up-to-date web browser with style sheets (CSS) enabled. While you will be able to view the content of this page in your current browser, you will not be able to get the full visual experience. Please consider upgrading your browser software or enabling style sheets (CSS) if you are able to do so.\n" in lines:
+        lines.remove(
+            "This page is best viewed in an up-to-date web browser with style sheets (CSS) enabled. While you will be able to view the content of this page in your current browser, you will not be able to get the full visual experience. Please consider upgrading your browser software or enabling style sheets (CSS) if you are able to do so.\n")
+
+    for line in lines:
+        # Skip paragraphs with less than 2 declarative sentences, likely to be irrelevant or meta text which may affect training
+        if line.count('.') > 1:
+            text += line
+
+    return text
+
+
 def read_weebit(path: str):
-    data = []
+    data = {0: [], 1: [], 2: [], 3: [], 4: []}
 
     # Get texts for 7-8 year olds
     for file_name in os.listdir(path + "\\WeeBit-TextOnly\\WRLevel2"):
@@ -13,14 +31,11 @@ def read_weebit(path: str):
             continue
 
         f = open(path + "\\WeeBit-TextOnly\\WRLevel2\\" + file_name)
-        lines = f.readlines()
-        lines.pop(len(lines) - 1)
-        text = ""
+        text = get_text(f)
 
-        for line in lines:
-            text += line
+        if text:
+            data[0].append({"text": text, "label": 0})
 
-        data.append({"text": text, "label": 0})
 
     # Get texts for 8-9 year olds
     for file_name in os.listdir(path + "\\WeeBit-TextOnly\\WRLevel3"):
@@ -28,14 +43,10 @@ def read_weebit(path: str):
             continue
 
         f = open(path + "\\WeeBit-TextOnly\\WRLevel3\\" + file_name)
-        lines = f.readlines()
-        lines.pop(len(lines) - 1)
-        text = ""
+        text = get_text(f)
 
-        for line in lines:
-            text += line
-
-        data.append({"text": text, "label": 1})
+        if text:
+            data[1].append({"text": text, "label": 1})
 
     # Get texts for 9-10 year olds
     for file_name in os.listdir(path + "\\WeeBit-TextOnly\\WRLevel4"):
@@ -43,14 +54,10 @@ def read_weebit(path: str):
             continue
 
         f = open(path + "\\WeeBit-TextOnly\\WRLevel4\\" + file_name)
-        lines = f.readlines()
-        lines.pop(len(lines) - 1)
-        text = ""
+        text = get_text(f)
 
-        for line in lines:
-            text += line
-
-        data.append({"text": text, "label": 2})
+        if text:
+            data[2].append({"text": text, "label": 2})
 
     # Get texts for 11-14 year olds
     for file_name in os.listdir(path + "\\WeeBit-TextOnly\\BitKS3"):
@@ -58,21 +65,10 @@ def read_weebit(path: str):
             continue
 
         f = open(path + "\\WeeBit-TextOnly\\BitKS3\\" + file_name)
-        lines = f.readlines()
-        text = ""
+        text = get_text(f)
 
-        if lines[0][0] == '>':
-            lines.pop(0)
-
-        if "The BBC is not responsible for the content of external internet sites.\n" in lines:
-            lines.remove("The BBC is not responsible for the content of external internet sites.\n")
-        if "This page is best viewed in an up-to-date web browser with style sheets (CSS) enabled. While you will be able to view the content of this page in your current browser, you will not be able to get the full visual experience. Please consider upgrading your browser software or enabling style sheets (CSS) if you are able to do so.\n" in lines:
-            lines.remove("This page is best viewed in an up-to-date web browser with style sheets (CSS) enabled. While you will be able to view the content of this page in your current browser, you will not be able to get the full visual experience. Please consider upgrading your browser software or enabling style sheets (CSS) if you are able to do so.\n")
-
-        for line in lines:
-            text += line
-
-        data.append({"text": text, "label": 3})
+        if text:
+            data[3].append({"text": text, "label": 3})
 
     # Get texts for 15-16 year olds
     for file_name in os.listdir(path + "\\WeeBit-TextOnly\\BitGCSE"):
@@ -80,22 +76,24 @@ def read_weebit(path: str):
             continue
 
         f = open(path + "\\WeeBit-TextOnly\\BitGCSE\\" + file_name)
-        lines = f.readlines()
-        text = ""
+        text = get_text(f)
 
-        if "The BBC is not responsible for the content of external internet sites.\n" in lines:
-            lines.remove("The BBC is not responsible for the content of external internet sites.\n")
-        if "This page is best viewed in an up-to-date web browser with style sheets (CSS) enabled. While you will be able to view the content of this page in your current browser, you will not be able to get the full visual experience. Please consider upgrading your browser software or enabling style sheets (CSS) if you are able to do so.\n" in lines:
-            lines.remove("This page is best viewed in an up-to-date web browser with style sheets (CSS) enabled. While you will be able to view the content of this page in your current browser, you will not be able to get the full visual experience. Please consider upgrading your browser software or enabling style sheets (CSS) if you are able to do so.\n")
-        while "You have disabled Javascript, or are not running Javascript on this browser. Go to the\n" in lines:
-            lines.remove("You have disabled Javascript, or are not running Javascript on this browser. Go to the\n")
+        if text:
+            data[4].append({"text": text, "label": 4})
 
-        for line in lines:
-            text += line
+    min_length = -1
 
-        data.append({"text": text, "label": 4})
+    for label in data:
+        if min_length == -1 or len(data[label]) < min_length:
+            min_length = len(data[label])
 
-    return data
+    flattened_data = []
+
+    for label in data:
+        data[label] = random.sample(data[label], min_length)
+        flattened_data += data[label]
+
+    return flattened_data
 
 
 def read_newsela(path: str):
