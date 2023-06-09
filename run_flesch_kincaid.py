@@ -17,20 +17,20 @@ for (text, label) in zip(dataset["text"], dataset["label"]):
         correct_guesses[label] += 1
         correct_guesses[5] += 1  # 5 is an extra label used for describing overall performance
     elif label == 0:
-        errors[label] += min(predicted_level - 1, predicted_level - 3) ** 2
-        errors[5] += min(predicted_level - 1, predicted_level - 3) ** 2
+        errors[label] += min(np.abs(predicted_level - 1), np.abs(predicted_level - 3)) ** 2
+        errors[5] += min(np.abs(predicted_level - 1), np.abs(predicted_level - 3)) ** 2
     elif label == 1:
-        errors[label] += min(predicted_level - 2, predicted_level - 4) ** 2
-        errors[5] += min(predicted_level - 2, predicted_level - 4) ** 2
+        errors[label] += min(np.abs(predicted_level - 2), np.abs(predicted_level - 4)) ** 2
+        errors[5] += min(np.abs(predicted_level - 2), np.abs(predicted_level - 4)) ** 2
     elif label == 2:
-        errors[label] += min(predicted_level - 3, predicted_level - 5) ** 2
-        errors[5] += min(predicted_level - 3, predicted_level - 5) ** 2
+        errors[label] += min(np.abs(predicted_level - 3), np.abs(predicted_level - 5)) ** 2
+        errors[5] += min(np.abs(predicted_level - 3), np.abs(predicted_level - 5)) ** 2
     elif label == 3:
-        errors[label] += min(predicted_level - 5, predicted_level - 9) ** 2
-        errors[5] += min(predicted_level - 5, predicted_level - 9) ** 2
+        errors[label] += min(np.abs(predicted_level - 5), np.abs(predicted_level - 9)) ** 2
+        errors[5] += min(np.abs(predicted_level - 5), np.abs(predicted_level - 9)) ** 2
     elif label == 4:
-        errors[label] += min(predicted_level - 9, predicted_level - 11) ** 2
-        errors[5] += min(predicted_level - 9, predicted_level - 11) ** 2
+        errors[label] += min(np.abs(predicted_level - 9), np.abs(predicted_level - 11)) ** 2
+        errors[5] += min(np.abs(predicted_level - 9), np.abs(predicted_level - 11)) ** 2
 
     total_guesses[label] += 1
     total_guesses[5] += 1

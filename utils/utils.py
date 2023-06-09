@@ -26,11 +26,11 @@ def read_weebit(path: str):
     data = {0: [], 1: [], 2: [], 3: [], 4: []}
 
     # Get texts for 7-8 year olds
-    for file_name in os.listdir(path + "\\WeeBit-TextOnly\\WRLevel2"):
+    for file_name in os.listdir(path + "\\WRLevel2"):
         if ".txt" not in file_name:
             continue
 
-        f = open(path + "\\WeeBit-TextOnly\\WRLevel2\\" + file_name)
+        f = open(path + "\\WRLevel2\\" + file_name)
         text = get_text(f)
 
         if text:
@@ -38,44 +38,44 @@ def read_weebit(path: str):
 
 
     # Get texts for 8-9 year olds
-    for file_name in os.listdir(path + "\\WeeBit-TextOnly\\WRLevel3"):
+    for file_name in os.listdir(path + "\\WRLevel3"):
         if ".txt" not in file_name:
             continue
 
-        f = open(path + "\\WeeBit-TextOnly\\WRLevel3\\" + file_name)
+        f = open(path + "\\WRLevel3\\" + file_name)
         text = get_text(f)
 
         if text:
             data[1].append({"text": text, "label": 1})
 
     # Get texts for 9-10 year olds
-    for file_name in os.listdir(path + "\\WeeBit-TextOnly\\WRLevel4"):
+    for file_name in os.listdir(path + "\\WRLevel4"):
         if ".txt" not in file_name:
             continue
 
-        f = open(path + "\\WeeBit-TextOnly\\WRLevel4\\" + file_name)
+        f = open(path + "\\WRLevel4\\" + file_name)
         text = get_text(f)
 
         if text:
             data[2].append({"text": text, "label": 2})
 
     # Get texts for 11-14 year olds
-    for file_name in os.listdir(path + "\\WeeBit-TextOnly\\BitKS3"):
+    for file_name in os.listdir(path + "\\BitKS3"):
         if ".txt" not in file_name:
             continue
 
-        f = open(path + "\\WeeBit-TextOnly\\BitKS3\\" + file_name)
+        f = open(path + "\\BitKS3\\" + file_name)
         text = get_text(f)
 
         if text:
             data[3].append({"text": text, "label": 3})
 
     # Get texts for 15-16 year olds
-    for file_name in os.listdir(path + "\\WeeBit-TextOnly\\BitGCSE"):
+    for file_name in os.listdir(path + "\\BitGCSE"):
         if ".txt" not in file_name:
             continue
 
-        f = open(path + "\\WeeBit-TextOnly\\BitGCSE\\" + file_name)
+        f = open(path + "\\BitGCSE\\" + file_name)
         text = get_text(f)
 
         if text:
@@ -87,13 +87,20 @@ def read_weebit(path: str):
         if min_length == -1 or len(data[label]) < min_length:
             min_length = len(data[label])
 
-    flattened_data = []
+    train = []
+    test = []
 
     for label in data:
         data[label] = random.sample(data[label], min_length)
-        flattened_data += data[label]
+        random.shuffle(data[label])
+        split_no = int(0.8 * min_length)
+        train += data[label][:split_no]
+        test += data[label][split_no:]
 
-    return flattened_data
+    random.shuffle(train)
+    random.shuffle(test)
+
+    return train, test
 
 
 def read_newsela(path: str):
@@ -104,16 +111,16 @@ def get_dataset(corpus: Corpus, path: str, reload: False):
     # Process WeeBit dataset if no cached option is found or the data should be reloaded
     if not os.path.isfile("weebit-cache-train.csv") or not os.path.isfile("weebit-cache-test.csv") or reload:
         if corpus == Corpus.WEEBIT:
-            data = read_weebit(path)
+            train, test = read_weebit(path)
         else:
-            data = read_newsela(path)
+            train, test = read_newsela(path)
 
-        dataset = Dataset.from_list(data)
-        dataset = dataset.train_test_split(train_size=0.8, shuffle=True)
-        dataset["train"].to_csv("weebit-cache-train.csv")
-        dataset["test"].to_csv("weebit-cache-test.csv")
+        train_dataset = Dataset.from_list(train)
+        test_dataset = Dataset.from_list(test)
+        train_dataset.to_csv("weebit-cache-train.csv")
+        test_dataset.to_csv("weebit-cache-test.csv")
 
-        return dataset
+        return DatasetDict({"train": train_dataset, "test": test_dataset})
 
     train_dataset = Dataset.from_csv("weebit-cache-train.csv")
     test_dataset = Dataset.from_csv("weebit-cache-test.csv")

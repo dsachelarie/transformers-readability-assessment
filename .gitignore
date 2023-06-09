@@ -4,7 +4,7 @@ venv/
 
 # corpora
 WeeBitBalanced/
-WeeBit/
+WeeBit-NoSpecialChar/
 WeeBitBalancedCache/
 
 # pycache
@@ -14,7 +14,16 @@ WeeBitBalancedCache/
 readnet.py
 
 # Output directory
-test_trainer
+trainer
 
 # csv files
 *.csv
+
+# glove
+glove.6B.100d.txt
+
+# Predictions directory
+predictions
+
+# ReadNet training cache
+models
