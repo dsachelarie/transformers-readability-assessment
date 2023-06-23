@@ -1,5 +1,7 @@
 import os
 import random
+import numpy as np
+from scipy.stats import f_oneway
 
 from datasets import Dataset, DatasetDict
 from utils.corpus import Corpus
@@ -126,3 +128,68 @@ def get_dataset(corpus: Corpus, path: str, reload: False):
     test_dataset = Dataset.from_csv("weebit-cache-test.csv")
 
     return DatasetDict({"train": train_dataset, "test": test_dataset})
+
+
+def get_accuracy(file: str):
+    f = open(file, "r")
+    correct_guesses = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+    total_guesses = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+
+    for line in f:
+        line = line.split(" ")
+        if int(line[0]) == int(line[1]):
+            correct_guesses[int(line[1])] += 1
+            correct_guesses[5] += 1
+
+        total_guesses[int(line[1])] += 1
+        total_guesses[5] += 1
+
+    print("Accuracy:")
+    for label in correct_guesses:
+        print(str(label) + ": " + str(correct_guesses[label] / total_guesses[label]))
+
+
+def get_rmse(file: str):
+    f = open(file, "r")
+    errors = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+    total_guesses = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+
+    for line in f:
+        line = line.split(" ")
+
+        errors[int(line[1])] += (int(line[1]) - int(line[0])) ** 2
+        errors[5] += (int(line[1]) - int(line[0])) ** 2
+        total_guesses[int(line[1])] += 1
+        total_guesses[5] += 1
+
+    print("RMSE:")
+    for label in errors:
+        print(str(label) + ": " + str(np.sqrt(errors[label] / total_guesses[label])))
+
+
+def get_anova(file: str):
+    f = open(file, "r")
+    accuracies = {0: [], 1: [], 2: [], 3: [], 4: []}
+    errors = {0: [], 1: [], 2: [], 3: [], 4: []}
+
+    for line in f:
+        line = line.split(" ")
+
+        if int(line[0]) == int(line[1]):
+            accuracies[int(line[1])].append(1)
+        else:
+            accuracies[int(line[1])].append(0)
+
+        errors[int(line[1])].append(np.abs(int(line[1]) - int(line[0])))
+
+    print("Correct/incorrect:")
+    print(f_oneway(accuracies[0], accuracies[1], accuracies[2], accuracies[3], accuracies[4]))
+    print("Error:")
+    print(f_oneway(errors[0], errors[1], errors[2], errors[3], errors[4]))
+
+
+# Indexing from 1
+def get_text_from_test(index: int):
+    test_dataset = Dataset.from_csv("weebit-cache-test.csv")
+
+    return test_dataset.to_dict()['text'][index - 1]

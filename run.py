@@ -2,9 +2,7 @@ from transformer_model import TransformerModel
 from utils.corpus import Corpus
 from utils.model import Model
 from utils import utils
-import readnet
 import numpy as np
-import torch
 
 
 WEEBIT_PATH = "WeeBit-NoSpecialChar"
@@ -19,9 +17,9 @@ def run_on_corpus(corpus: Corpus, num_labels: int, models: [Model], reload=False
 
     for model in models:
         if model == Model.READNET:
-            predictions = readnet.run_readnet(dataset["test"].to_dict()["text"], evaluate_only=True)
-            labels = dataset["test"].to_dict()["label"]
-            file = "predictions/readnet_predictions.txt"
+            print("Please run readnet.py")
+
+            continue
 
         elif model == Model.BERT:
             transformer_model = TransformerModel("bert-base-uncased", num_labels)
@@ -57,8 +55,34 @@ def run_on_corpus(corpus: Corpus, num_labels: int, models: [Model], reload=False
 
         f.close()
 
-        # results.append({"model": model, "results": transformer_model.run(dataset["train"], dataset["test"])})
+
+def show_metrics(model: Model):
+    if model == Model.READNET:
+        file = "predictions/readnet_predictions.txt"
+
+    elif model == Model.BERT:
+        file = "predictions/bert_predictions.txt"
+
+    elif model == Model.ROBERTA:
+        file = "predictions/roberta_predictions.txt"
+
+    elif model == Model.BART:
+        file = "predictions/bart_predictions.txt"
+
+    elif model == Model.GPT2:
+        file = "predictions/gpt2_predictions.txt"
+
+    else:
+        raise Exception("No such model")
+
+    utils.get_accuracy(file)
+    utils.get_rmse(file)
+    utils.get_anova(file)
 
 
 # Before evaluating using ReadNet, please train it first by running readnet.py
-run_on_corpus(corpus=Corpus.WEEBIT, num_labels=5, models=[Model.BERT])
+# run_on_corpus(corpus=Corpus.WEEBIT, num_labels=5, models=[Model.BART])
+
+# show_metrics(Model.READNET)
+
+# print(utils.get_text_from_test(18))
