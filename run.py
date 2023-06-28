@@ -80,9 +80,6 @@ def show_metrics(model: Model):
     utils.get_anova(file)
 
 
-# Before evaluating using ReadNet, please train it first by running readnet.py
-# run_on_corpus(corpus=Corpus.WEEBIT, num_labels=5, models=[Model.BART])
+run_on_corpus(corpus=Corpus.WEEBIT, num_labels=5, models=[Model.BERT])
 
-# show_metrics(Model.READNET)
-
-# print(utils.get_text_from_test(18))
+show_metrics(Model.BERT)

@@ -38,7 +38,6 @@ def read_weebit(path: str):
         if text:
             data[0].append({"text": text, "label": 0})
 
-
     # Get texts for 8-9 year olds
     for file_name in os.listdir(path + "\\WRLevel3"):
         if ".txt" not in file_name:
@@ -85,6 +84,7 @@ def read_weebit(path: str):
 
     min_length = -1
 
+    # Find minimum number of samples per single label
     for label in data:
         if min_length == -1 or len(data[label]) < min_length:
             min_length = len(data[label])
@@ -92,6 +92,7 @@ def read_weebit(path: str):
     train = []
     test = []
 
+    # Balance and split dataset
     for label in data:
         data[label] = random.sample(data[label], min_length)
         random.shuffle(data[label])
@@ -188,8 +189,7 @@ def get_anova(file: str):
     print(f_oneway(errors[0], errors[1], errors[2], errors[3], errors[4]))
 
 
-# Indexing from 1
 def get_text_from_test(index: int):
     test_dataset = Dataset.from_csv("weebit-cache-test.csv")
 
-    return test_dataset.to_dict()['text'][index - 1]
+    return test_dataset.to_dict()['text'][index - 1]  # Indexing from 1

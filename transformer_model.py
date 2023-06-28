@@ -11,7 +11,7 @@ class TransformerModel:
     def tokenize(self, dataset: Dataset):
         tokenizer = AutoTokenizer.from_pretrained(self.model_name)
 
-        # define pad token for GPT-2, since no default pad token is provided
+        # Define pad token for GPT-2, since no default pad token is provided
         if self.model_name == "gpt2":
             tokenizer.pad_token = tokenizer.eos_token
             self.model.config.pad_token_id = self.model.config.eos_token_id

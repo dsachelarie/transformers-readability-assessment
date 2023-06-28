@@ -4,18 +4,18 @@ import numpy as np
 
 dataset = Dataset.from_csv("weebit-cache-test.csv")
 dataset = dataset.to_dict()
-correct_guesses = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+correct_guesses = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0}  # 5 is an extra label used for describing overall performance
 errors = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
 total_guesses = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
 grade_labels = []
 
+# Get Flesch-Kincaid grade level predictions and calculate metrics
 for (text, label) in zip(dataset["text"], dataset["label"]):
     predicted_level = textstat.flesch_kincaid_grade(text)
 
-    # 2nd grade, 3rd grade, 4th grade, 6-8th grade, 10th grade
     if (label == 0 and 2 <= predicted_level <= 3) or (label == 1 and 3 <= predicted_level <= 4) or (label == 2 and 4 <= predicted_level <= 5) or (label == 3 and 6 <= predicted_level <= 9) or (label == 4 and 10 <= predicted_level <= 11):
         correct_guesses[label] += 1
-        correct_guesses[5] += 1  # 5 is an extra label used for describing overall performance
+        correct_guesses[5] += 1
     elif label == 0:
         errors[label] += min(np.abs(predicted_level - 2), np.abs(predicted_level - 3)) ** 2
         errors[5] += min(np.abs(predicted_level - 2), np.abs(predicted_level - 3)) ** 2
